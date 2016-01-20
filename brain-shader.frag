@@ -14,35 +14,68 @@ bool isAlive(Image layer, vec2 pos)
   return texture2D(layer, pos / resolusion).a > 0;
 }
 
-bool hasLivingNeighbor(Image layer, vec2 pos)
+int neighbors(Image layer, vec2 pos)
 {
+  int count = 0;
+
   if (isAlive(layer, pos + vec2(1, 0))) {
-    return true;
-  } else if (isAlive(layer, pos - vec2(1, 0))) {
-    return true;
-  } else if (isAlive(layer, pos + vec2(0, 1))) {
-    return true;
-  } else if (isAlive(layer, pos - vec2(0, 1))) {
-    return true;
+    count += 1;
   }
-  if (isAlive(above, pos)) {
-    return true;
+  if (isAlive(layer, pos + vec2(1, 1))) {
+    count += 1;
   }
-  if (layerz > 1 && isAlive(bellow, pos)) {
-    return true;
+  if (isAlive(layer, pos + vec2(0, 1))) {
+    count += 1;
   }
-  return false;
+  if (isAlive(layer, pos + vec2(-1, 1))) {
+    count += 1;
+  }
+  if (isAlive(layer, pos + vec2(-1, 0))) {
+    count += 1;
+  }
+  if (isAlive(layer, pos + vec2(-1, -1))) {
+    count += 1;
+  }
+  if (isAlive(layer, pos + vec2(0, -1))) {
+    count += 1;
+  }
+  if (isAlive(layer, pos + vec2(1, -1))) {
+    count += 1;
+  }
+
+  return count;
 }
 
-bool shouldGrow(Image layer, vec2 pos)
+int neighbors3d(Image layer, vec2 pos)
 {
-  return hasLivingNeighbor(layer, pos); // && rand(vec3(pos, layerz)) > 0.6;
+  int count = 0;
+  count += neighbors(layer, pos);
+  // count += neighbors(above, pos);
+  // count += neighbors(bellow, pos);
+
+  // if (isAlive(above, pos)) {
+  //   count += 1;
+  // }
+  // if (layerz > 1 && isAlive(bellow, pos)) {
+  //   count += 1;
+  // }
+
+  return count;
 }
+
+int lower = 3;
+int higher = 8;
 
 vec4 effect(vec4 color, Image texture, vec2 tc, vec2 sc) {
   vec2 pos = tc * resolusion;
 
-  if (shouldGrow(texture, pos)) {
+  int nbors = neighbors3d(texture, pos);
+
+  if (nbors < 2 || nbors > 3) {
+    return vec4(0, 0, 0, 0);
+  }
+
+  if (nbors == 3) {
     return vec4(1, 1, 1, 1);
   }
 
