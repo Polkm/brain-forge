@@ -21,22 +21,23 @@ int neighbors(Image layer, vec2 pos)
   if (isAlive(layer, pos + vec2(1, 0))) {
     count += 1;
   }
-  if (isAlive(layer, pos + vec2(1, 1))) {
-    count += 1;
-  }
   if (isAlive(layer, pos + vec2(0, 1))) {
-    count += 1;
-  }
-  if (isAlive(layer, pos + vec2(-1, 1))) {
     count += 1;
   }
   if (isAlive(layer, pos + vec2(-1, 0))) {
     count += 1;
   }
-  if (isAlive(layer, pos + vec2(-1, -1))) {
+  if (isAlive(layer, pos + vec2(0, -1))) {
     count += 1;
   }
-  if (isAlive(layer, pos + vec2(0, -1))) {
+
+  if (isAlive(layer, pos + vec2(1, 1))) {
+    count += 1;
+  }
+  if (isAlive(layer, pos + vec2(-1, 1))) {
+    count += 1;
+  }
+  if (isAlive(layer, pos + vec2(-1, -1))) {
     count += 1;
   }
   if (isAlive(layer, pos + vec2(1, -1))) {
@@ -50,33 +51,36 @@ int neighbors3d(Image layer, vec2 pos)
 {
   int count = 0;
   count += neighbors(layer, pos);
-  // count += neighbors(above, pos);
-  // count += neighbors(bellow, pos);
+  count += neighbors(above, pos);
+  count += neighbors(bellow, pos);
 
-  // if (isAlive(above, pos)) {
-  //   count += 1;
-  // }
-  // if (layerz > 1 && isAlive(bellow, pos)) {
-  //   count += 1;
-  // }
+  if (isAlive(above, pos)) {
+    count += 1;
+  }
+  if (layerz > 1 && isAlive(bellow, pos)) {
+    count += 1;
+  }
 
   return count;
 }
 
-int lower = 3;
-int higher = 8;
+int eL = 5;
+int eU = 7;
+
+int fL = 6;
+int fU = 6;
 
 vec4 effect(vec4 color, Image texture, vec2 tc, vec2 sc) {
   vec2 pos = tc * resolusion;
 
   int nbors = neighbors3d(texture, pos);
 
-  if (nbors < 2 || nbors > 3) {
+  if (nbors < eL || nbors > eU) {
     return vec4(0, 0, 0, 0);
   }
 
-  if (nbors == 3) {
-    return vec4(1, 1, 1, 1);
+  if (nbors >= fL || nbors <= fU) {
+    return vec4(1, 1, layerz / resolusion.x, 1);
   }
 
   return texture2D(texture, tc);
