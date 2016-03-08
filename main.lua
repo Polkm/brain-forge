@@ -21,7 +21,6 @@ function love.filedropped(file)
   local size = tonumber(string.match(filename, "_(%d+).csv"))
   if string.find(filename, "InitState") then
     local initState = {}
-    local stateChanges = {}
 
     local n = -1
     for line in file:lines() do
@@ -32,18 +31,17 @@ function love.filedropped(file)
       n = n + 1
     end
 
-    sim = simulation({size = size, initState = initState, stateChanges = stateChanges})
-    sim.init()
-    sim.reset()
-  end
-  if string.find(filename, "ChangeState") then
+    -- file, err = love.filesystem.newFile(, "r")
+    -- assert(false, err)
+    file = io.open(string.gsub(filename, "InitState", "ChangeState"), "r")
     local stateChanges = {}
-
     local changes = -1
     local maxFrames = 0
     for line in file:lines() do
-      if changes >= 0 then
+      -- print(line)
+      if line and changes >= 0 then
         local x, y, z, typ, tim = string.match(line, "(%d+),(%d+),(%d+),(%d+),(%d+)")
+
         x, y, z, typ, tim = tonumber(y), tonumber(z), tonumber(x), tonumber(typ), tonumber(tim)
 
         stateChanges[tim] = stateChanges[tim] or {}
@@ -59,6 +57,13 @@ function love.filedropped(file)
 
     display.playBack = 0
     display.maxFrames = maxFrames
+
+    sim = simulation({size = size, initState = initState, stateChanges = stateChanges})
+    sim.init()
+    sim.reset()
+  end
+  if string.find(filename, "ChangeState") then
+
 
     -- _G.menu.refresh()
 
