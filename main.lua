@@ -4,39 +4,83 @@ function requiredir(dir)
   end
 end
 requiredir("modules")
-requiredir("simulation")
 
-local sim = simulation({})
-controls.simulation = sim
+requiredir("simulation")
+requiredir("gui")
+requiredir("menus")
+
+
+local sim
 
 function love.load()
-  sim.init()
-  sim.reset()
+
+end
+
+function love.filedropped(file)
+  local filename = file:getFilename()
+  local size = tonumber(string.match(filename, "_(%d+).csv"))
+  if string.find(filename, "InitState") then
+    local initState = {}
+    local stateChanges = {}
+
+    local n = -1
+    for line in file:lines() do
+      if n >= 0 then
+        local typ = tonumber(string.char(string.byte(line, string.len(line) - 1)))
+        initState[n] = typ
+      end
+      n = n + 1
+    end
+
+    sim = simulation({size = size, initState = initState, stateChanges = stateChanges})
+    sim.init()
+    sim.reset()
+  end
+  if string.find(filename, "ChangeState") then
+    local stateChanges = {}
+
+    local changes = -1
+    local maxFrames = 0
+    for line in file:lines() do
+      if changes >= 0 then
+        local x, y, z, typ, tim = string.match(line, "(%d+),(%d+),(%d+),(%d+),(%d+)")
+        x, y, z, typ, tim = tonumber(y), tonumber(z), tonumber(x), tonumber(typ), tonumber(tim)
+
+        stateChanges[tim] = stateChanges[tim] or {}
+        stateChanges[tim][z] = stateChanges[tim][z] or {}
+        stateChanges[tim][z][#stateChanges[tim][z] + 1] = {x = x, y = y, typ = typ}
+        maxFrames = math.max(maxFrames, tim)
+      end
+      changes = changes + 1
+    end
+    if sim then
+      sim.stateChanges = stateChanges
+    end
+
+    display.playBack = 0
+    display.maxFrames = maxFrames
+
+    -- _G.menu.refresh()
+
+  end
 end
 
 function love.update(dt)
-  sim.update(dt)
+  if sim then
+    sim.update(dt)
+  end
+
+  gui.update(dt)
 end
 
 function love.draw()
   love.graphics.setBackgroundColor(50, 50, 50, 255)
 
-  sim.draw()
-
-  -- Top left info
-
-  local console = ""
-
-  local fps = "fps:" .. love.timer.getFPS()
-  local dt = "dt:" .. math.floor(love.timer.getAverageDelta() * 1000) .. "ms"
-  local stats = love.graphics.getStats()
-  local statStr = ""
-  for stat, v in pairs(stats) do
-    if stat == "texturememory" then
-      statStr = statStr .. "\n" .. stat .. ": " .. math.floor(v / 1024 / 1024 * 10) / 10 .. "mbs"
-    else
-      statStr = statStr .. "\n" .. stat .. ": " .. v .. ""
-    end
+  if sim then
+    sim.draw()
   end
-  love.graphics.printf(fps .. " " .. dt .. "  " .. statStr .. "\n" .. console, 0, 0, love.graphics.getWidth())
+
+  gui.draw()
+
+  console.draw()
 end

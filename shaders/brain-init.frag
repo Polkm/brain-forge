@@ -2,6 +2,8 @@ extern vec2 resolusion;
 extern float layerz;
 extern float seed;
 
+// extern vec4 neuron
+
 highp float rand(vec2 co)
 {
   highp float a = 12.9898;
@@ -18,11 +20,11 @@ vec4 effect(vec4 color, Image texture, vec2 tc, vec2 sc) {
   float roll = rand(seed + tc + layerz * 0.03543);
 
   if (roll > 0.99995) {
-    return vec4(0, 0, 0, 1);
+    return vec4(0, 0, 0, 0);
   } else if (roll > 0.2) {
-    return vec4(0.2, 0.5, 0.8, 1);
+    return vec4(0.2, 0.5, 0.8, 1.0 / 255.0);
   } else {
-    return vec4(0.95, 0.2, 0.2, 1);
+    return vec4(0.95, 0.2, 0.2, 2.0 / 255.0);
   }
   return texture2D(texture, tc);
 }

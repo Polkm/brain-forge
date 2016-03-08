@@ -22,7 +22,7 @@ bool isAlive(Image layer, vec2 pos)
 
 bool isCancer(Image layer, vec2 pos)
 {
-  return texture2D(layer, pos / resolusion).rgba == vec4(0, 0, 0, 1);
+  return texture2D(layer, pos / resolusion).a == 0;
 }
 
 int neighbors(Image layer, vec2 pos)
@@ -63,13 +63,17 @@ int neighbors3d(Image layer, vec2 pos)
   int count = 0;
   count += neighbors(layer, pos);
   count += neighbors(above, pos);
-  count += neighbors(bellow, pos);
+
 
   if (isCancer(above, pos)) {
     count += 1;
   }
-  if (layerz > 1 && isCancer(bellow, pos)) {
-    count += 1;
+
+  if (layerz > 1) {
+    count += neighbors(bellow, pos);
+    if (isCancer(bellow, pos)) {
+      count += 1;
+    }
   }
 
   return count;
@@ -82,7 +86,7 @@ vec4 effect(vec4 color, Image texture, vec2 tc, vec2 sc) {
     int nbors = neighbors3d(texture, pos);
     float prob = nbors / 26.0;
     if (rand(tc + layerz * resolusion.x + frame * 0.007) < prob) {
-      return vec4(0, 0, 0, 1);
+      return vec4(0, 0, 0, 0);
     }
   }
 
