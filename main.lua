@@ -10,7 +10,7 @@ requiredir("gui")
 requiredir("menus")
 
 
-local sim
+sim = nil
 
 function love.load()
 

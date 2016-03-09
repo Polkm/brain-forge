@@ -19,7 +19,7 @@ vec4 effect(vec4 color, Image texture, vec2 tc, vec2 sc) {
 
   float roll = rand(seed + tc + layerz * 0.03543);
 
-  if (roll > 0.99995) {
+  if (roll > 0.9999) {
     return vec4(0, 0, 0, 0);
   } else if (roll > 0.2) {
     return vec4(0.2, 0.5, 0.8, 1.0 / 255.0);

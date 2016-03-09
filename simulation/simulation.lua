@@ -1,7 +1,7 @@
 function simulation(p)
   p.layers = {}
   p.layerBuffers = {}
-  p.size = p.size or 100
+  p.size = p.size or 300
 
   p.initShader = love.graphics.newShader("shaders/brain-init.frag")
   p.updateShader = love.graphics.newShader("shaders/brain-update.frag")
@@ -85,13 +85,13 @@ function simulation(p)
   function p.swapBuffers()
     p.zprogress = 1
 
-    -- love.graphics.setBackgroundColor(0, 0, 0, 0)
-    -- for z = 1, p.size do
-    --   p.layers[z], p.layerBuffers[z] = p.layerBuffers[z], p.layers[z]
-    --   love.graphics.setCanvas(p.layerBuffers[z])
-    --   love.graphics.clear()
-    -- end
-    -- love.graphics.setBackgroundColor(50, 50, 50, 255)
+    love.graphics.setBackgroundColor(0, 0, 0, 0)
+    for z = 1, p.size do
+      p.layers[z], p.layerBuffers[z] = p.layerBuffers[z], p.layers[z]
+      love.graphics.setCanvas(p.layerBuffers[z])
+      love.graphics.clear()
+    end
+    love.graphics.setBackgroundColor(50, 50, 50, 255)
   end
 
   function p.reset()
@@ -197,7 +197,7 @@ function simulation(p)
       love.graphics.push()
       love.graphics.translate(love.graphics.getWidth() * 0.5 + p.panX, love.graphics.getHeight() * 0.5 + p.panY)
 
-      local spread = 1 + display.layerSpread * 5.0
+      local spread = 1 + display.layerSpread * 30.0
 
       love.graphics.translate(0, -(z - p.size * 0.5) * spread * math.sin(p.volumeTilt) * p.volumeZoom)
       love.graphics.scale(p.volumeZoom, p.volumeZoom * math.cos(p.volumeTilt))

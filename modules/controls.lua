@@ -39,6 +39,11 @@ function love.keyreleased(key)
     if key == "r" then p.simulation.reset() end
     if key == "space" then p.simulation.paused = not p.simulation.paused end
   end
+  if key == "g" then
+    sim = simulation({})
+    sim.init()
+    sim.reset()
+  end
 end
 
 controls = p
