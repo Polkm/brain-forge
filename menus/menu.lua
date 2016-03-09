@@ -16,7 +16,7 @@ local function menu(p)
   end
 
   p.configuration = configuration({
-    x = p.w * 0.5,
+    x = p.w - 500,
   })
   p.add(p.configuration)
 

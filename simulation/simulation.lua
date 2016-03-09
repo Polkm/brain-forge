@@ -46,7 +46,7 @@ function simulation(p)
     elseif typ == 3 then
       love.graphics.setColor(0, 0, 0, 0)
     else
-      assert(false, typ)
+      -- assert(false, typ)
       love.graphics.setColor(0, 0, 0, 0)
     end
     love.graphics.points(x, y)
