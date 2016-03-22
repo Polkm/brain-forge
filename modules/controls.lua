@@ -3,16 +3,16 @@ local p = {}
 function love.mousemoved(x, y, dx, dy)
   if not gui.mouseMove(x, y, dx, dy) then
 
-    if p.simulation then
+    -- if p.simulation then
       if love.mouse.isDown(1) then
-        p.simulation.volumeRotation = p.simulation.volumeRotation - dx / 100
-        p.simulation.volumeTilt = math.min(math.max(p.simulation.volumeTilt - dy / 300, 0.02), math.pi * 0.48)
+        display.rotation = display.rotation - dx / 100
+        display.tilt = math.min(math.max(display.tilt - dy / 300, 0.02), math.pi * 0.48)
       end
       if love.mouse.isDown(2) then
-        p.simulation.panX = p.simulation.panX + dx
-        p.simulation.panY = p.simulation.panY + dy
+        display.panX = display.panX + dx
+        display.panY = display.panY + dy
       end
-    end
+    -- end
   end
 end
 
@@ -25,13 +25,13 @@ function love.mousereleased(x, y, button)
 end
 
 function love.wheelmoved(x, y)
-  if p.simulation then
+  -- if p.simulation then
     if y > 0 then
-      p.simulation.volumeZoom = p.simulation.volumeZoom * 2
+      display.zoom = display.zoom * 2
     elseif y < 0 then
-      p.simulation.volumeZoom = p.simulation.volumeZoom / 2
+      display.zoom = display.zoom / 2
     end
-  end
+  -- end
 end
 
 function love.keyreleased(key)
