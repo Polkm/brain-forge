@@ -5,6 +5,7 @@ function panel(p)
   p.children = p.children or {}
   p.parent = p.parent or nil
   p.dragging = p.dragging or false
+  p.align = p.align or "left"
 
   function p.add(child)
     if child.parent then
@@ -44,7 +45,7 @@ function panel(p)
       if p.font then
         love.graphics.setFont(p.font)
       end
-      love.graphics.printf(p.text, p.x, p.y, p.w, "left")
+      love.graphics.printf(p.text, p.x, p.y, p.w, p.align)
     end
   end
 
@@ -124,6 +125,15 @@ function panel(p)
     end
 
     return using
+  end
+
+  function p.getMax()
+    local max = {x = 0, y = 0}
+    for _, child in pairs(p.children) do
+      max.x = math.max(max.x, child.x + child.w)
+      max.y = math.max(max.y, child.y + child.h)
+    end
+    return max
   end
 
   return p

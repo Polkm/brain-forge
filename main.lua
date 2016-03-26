@@ -9,10 +9,12 @@ requiredir("simulation")
 requiredir("gui")
 requiredir("menus")
 
--- require("torch")
+--
 -- require("cutorch")
 
+require("torch")
 require("nn")
+require("gnuplot")
 
 
 sim = nil
@@ -20,11 +22,51 @@ sim = nil
 testStack = stack({})
 
 function love.load()
+  -- x=torch.linspace(-2*math.pi,2*math.pi)
+  -- gnuplot.plot(torch.sin(x))
+
+  -- os.execute('wget -c https://s3.amazonaws.com/torch7/data/cifar10torchsmall.zip')
+  -- os.execute('unzip cifar10torchsmall.zip')
+  trainset = torch.load('cifar10-train.t7')
+  testset = torch.load('cifar10-test.t7')
+  classes = {
+    'airplane', 'automobile', 'bird', 'cat',
+    'deer', 'dog', 'frog', 'horse', 'ship', 'truck'
+  }
+
+  -- ignore setmetatable for now, it is a feature beyond the scope of this tutorial. It sets the index operator.
+  setmetatable(trainset,
+  {__index = function(t, i)
+                  return {t.data[i], t.label[i]}
+              end}
+  );
+  trainset.data = trainset.data:double() -- convert the data from a ByteTensor to a DoubleTensor.
+
+  function trainset:size()
+    return self.data:size(1)
+  end
+
+  -- redChannel = trainset.data[{ {}, {1}, {}, {}  }] -- this picks {all images, 1st channel, all vertical pixels, all horizontal pixels}
+
+  mean = {} -- store the mean, to normalize the test set in the future
+  stdv  = {} -- store the standard-deviation for the future
+  for i=1,3 do -- over each image channel
+    mean[i] = trainset.data[{ {}, {i}, {}, {}  }]:mean() -- mean estimation
+    print('Channel ' .. i .. ', Mean: ' .. mean[i])
+    trainset.data[{ {}, {i}, {}, {}  }]:add(-mean[i]) -- mean subtraction
+
+    stdv[i] = trainset.data[{ {}, {i}, {}, {}  }]:std() -- std estimation
+    print('Channel ' .. i .. ', Standard Deviation: ' .. stdv[i])
+    trainset.data[{ {}, {i}, {}, {}  }]:div(stdv[i]) -- std scaling
+  end
+
+
+
   net = nn.Sequential()
-  net:add(nn.SpatialConvolution(1, 6, 5, 5)) -- 1 input image channel, 6 output channels, 5x5 convolution kernel
+  net:add(nn.SpatialConvolution(3, 6, 5, 5)) -- 3 input image channels, 6 output channels, 5x5 convolution kernel
   net:add(nn.ReLU())                       -- non-linearity
   net:add(nn.SpatialMaxPooling(2,2,2,2))     -- A max-pooling operation that looks at 2x2 windows and finds the max.
-  net:add(nn.SpatialConvolution(6, 16, 5, 5))
+  net:add(nn.SpatialConvolution(6, 16, 10, 10))
   net:add(nn.ReLU())                       -- non-linearity
   net:add(nn.SpatialMaxPooling(2,2,2,2))
   net:add(nn.View(16*5*5))                    -- reshapes from a 3D tensor of 16x5x5 into 1D tensor of 16*5*5
@@ -35,8 +77,24 @@ function love.load()
   net:add(nn.Linear(84, 10))                   -- 10 is the number of outputs of the network (in this case, 10 digits)
   net:add(nn.LogSoftMax())                     -- converts the output to a log-probability. Useful for classification problems
 
+
+
+
+  criterion = nn.ClassNLLCriterion()
+  trainer = nn.StochasticGradient(net, criterion)
+  trainer.learningRate = 0.001
+  trainer.maxIteration = 1 -- just do 5 epochs of training.
+
+  -- trainer:train(trainset)
+
   testStack.net = net
 
+
+  -- x = torch.linspace(-1,1)
+  -- xx = torch.Tensor(x:size(1),x:size(1)):zero():addr(1,x,x)
+  -- xx = xx*math.pi*6
+  -- gnuplot.imagesc(torch.sin(xx),'color')
+  -- gnuplot.imagesc(net.modules[8].weight,'color')
 
 
   -- print('Lenet5\n' .. net:__tostring());
@@ -104,7 +162,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.setBackgroundColor(50, 50, 50, 255)
+  love.graphics.setBackgroundColor(10, 10, 15, 255)
 
   testStack.draw()
 

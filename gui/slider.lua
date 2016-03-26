@@ -34,7 +34,7 @@ function slider(p)
     text = p.slideValue,
     drawBack = function()
       love.graphics.setColor(255, 255, 255, 255)
-      love.graphics.rectangle("fill", p.slider.x, p.slider.y, p.sliderWidth, p.slider.h)
+      love.graphics.rectangle("fill", p.slider.x, p.slider.y, p.sliderWidth, p.slider.h, 2, 2)
     end,
     drawFront = function()
       love.graphics.setColor(50, 50, 50, 255)

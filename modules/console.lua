@@ -35,7 +35,7 @@ function p.draw()
   love.graphics.setShader()
   love.graphics.setColor(255, 255, 255, 150)
   love.graphics.setFont(cache.get.font("fonts/Rubik-Regular.ttf", 14))
-  love.graphics.printf(fps .. " " .. dt .. "  " .. statStr .. "\n" .. p.console, 0, 0, love.graphics.getWidth())
+  love.graphics.printf(fps .. " " .. dt .. "  " .. statStr .. "\n" .. p.console, 0, 30, love.graphics.getWidth())
 end
 
 console = p

@@ -29,7 +29,7 @@ function stack(p)
       local img, data
 
       local weight = module.weight
-      if not weight and module.output then print(module.output) weight = module.output end
+      -- if not weight and module.output then print(module.output) weight = module.output end
       if weight then
         local dim = weight:dim()
 
@@ -47,7 +47,7 @@ function stack(p)
               for x = 1, w do
                 for y = 1, h do
                   local xxx, yyy = (xx - 1) * (w) + (x - 1), (yy - 1) * (h) + (y - 1)
-                  local r, g, b, a = p.getWeightColor(xxx, yyy, weight[xx][yy][x][y])
+                  local r, g, b, a = p.getWeightColor(xxx, yyy, weight[xx][yy][y][x])
                   if ((xx + (yy % 2 == 0 and 1 or 0)) % 2 == 0) then
                     -- r, g, b = color.mult(0.5, r, g, b)
                   end
@@ -126,6 +126,21 @@ function stack(p)
 
         love.graphics.setColor(255, 255, 255, (1 - display.layerAlpha) * 255)
         love.graphics.draw(img, 0, 0)
+
+        if module.weight and module.weight:dim() == 4 then
+          local w, h = module.weight:size(1), module.weight:size(2)
+          local kx, ky = module.weight:size(3), module.weight:size(4)
+          local xc, yc = w / kx, h / ky
+
+          love.graphics.setLineWidth(0.1)
+          for x = 0, w * kx, kx do
+            for y = 0, h * ky, ky do
+              love.graphics.line(x, 0, x, h * ky)
+              love.graphics.line(0, y, w * kx, y)
+            end
+          end
+
+        end
 
         -- z = z - h - 2
         -- love.graphics.draw(img, w * 0.5, h)
